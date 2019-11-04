@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- start custom head snippets -->
+<!-- add katex -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+    <title>Deep Generative Model Note – N Truong – Dabbling into the tech world</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="Dabbling into the tech world">
+    <meta property="og:description" content="Dabbling into the tech world" />
+    
+    <meta name="author" content="N Truong" />
+
+    
+    <meta property="og:title" content="Deep Generative Model Note" />
+    <meta property="twitter:title" content="Deep Generative Model Note" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="N Truong - Dabbling into the tech world" href="/feed.xml" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+    <script type="text/javascript">
+    window.MathJax = {
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        processEscapes: true
+      }
+    };
+</script>
+<script type="text/javascript" src="https://cdn.rawgit.com/mathjax/MathJax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  </head>
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <a href="/" class="site-avatar"><img src="http://sachachua.com/blog/wp-content/uploads/2013/08/shutterstock_57890992.jpg" /></a>
+
+          <div class="site-info">
+            <h1 class="site-name"><a href="/">N Truong</a></h1>
+            <p class="site-description">Dabbling into the tech world</p>
+          </div>
+
+          <nav>
+            <a href="/">Blog</a>
+            <a href="/about">About</a>
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container">
+      <article class="post">
+  <h1>Deep Generative Model Note</h1>
+  
+  <h2>Autoregressive Model </h4>
+
+  <div class="entry">
+    <h1 id="generative-model">Generative Model</h1>
+<p>In generative modeling, we assume that our data set <script type="math/tex">D</script> is a set of samples from some probability distribution <script type="math/tex">p_{data}</script>, and the goal is to be able to approximate such a probability distribution given our access to <script type="math/tex">D</script>. One way of doing so is via parametric models. That is, we have a family of probability distributions <script type="math/tex">\{p_{\mathbf{\theta}}: \mathbf{\theta} \in \Theta \}</script> parameterized by some (possibly high dimensional vector) <script type="math/tex">\mathbf{\theta}</script>, and our goal is to learn a parameter <script type="math/tex">\mathbf{\theta^*}</script> such that</p>
+
+<script type="math/tex; mode=display">\mathbf{\theta^*} = \arg\min_{\mathbf{\theta} \in \Theta} d(p_\theta, p_{data}),</script>
+
+<p>where <script type="math/tex">d(\cdot, \cdot)</script> is some notion of distance between distributions, for e.g. KL divergence. Note that we do not know what <script type="math/tex">p_{data}</script> is (that’s why we would like to approximate it), but we have information on <script type="math/tex">p_{data}</script> via our training data <script type="math/tex">D</script>.</p>
+
+<h1 id="autoregressive-models">Autoregressive Models</h1>
+<p>Given a probability distribution <script type="math/tex">p</script> and a sample <script type="math/tex">\mathbf{x} = (x_1,\dots,x_n)</script>, we can factorize the density as</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+p(\mathbf{x}) = \prod_{i=1}^n p(x_i | \mathbf{x}_{<i}), %]]></script>
+
+<p>where <script type="math/tex">% <![CDATA[
+\mathbf{x}\_{<i} = (x_1,\dots,x_{i-1}) %]]></script>. Here, we can see where the term <strong>autoregressive</strong> comes from: given an ordering <script type="math/tex">x_1,\dots,x_n</script>, the distribution of the <script type="math/tex">x_i</script> is dependent on the distribution of all the random variables that come before it: <script type="math/tex">x_1, \dots, x_{i-1}</script>.</p>
+
+<p>Now, for a moment, assume that each <script type="math/tex">x_i</script> is a Bernouilli random variable, then in order to specify <script type="math/tex">p(\mathbf{x})</script>, we would need <script type="math/tex">1=2^0</script> parameter for <script type="math/tex">p(x_1)</script>, <script type="math/tex">2^1</script> parameters for <script type="math/tex">p(x_2 \mid x_1)</script>, <script type="math/tex">2^{i-1}</script> parameters for <script type="math/tex">% <![CDATA[
+p(x_i \mid \mathbf{x}\_{<i}) %]]></script>, giving a total of</p>
+
+<script type="math/tex; mode=display">1 + 2 + \dots + 2^{n-1} = 2^n -1</script>
+
+<p>parameters. This means that the space complexity is exponential in the dimension of the input, rendering the tabular approach unemployable.</p>
+
+<p>Thus, in an autoregressive generative model, one assumes that</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+p_{\theta_i} (x_i | \mathbf{x}_{<i}) = p_1(f_i(x_1,\dots,x_{i-1})), %]]></script>
+
+<p>where the set of parameters <script type="math/tex">\theta_i</script> specifies the function <script type="math/tex">f_i</script>, which supplies the necessary parameters for the one-dimensional probability distributrion <script type="math/tex">p_1</script>. For example:</p>
+<ol>
+  <li>If <script type="math/tex">x_i \in \mathbb R</script> is a continuous distribution, <script type="math/tex">p_1</script> could be a normal distribution with mean and variance specified by <script type="math/tex">f_i</script>.</li>
+  <li>If <script type="math/tex">x_i \in \{0,1\}</script> is a binary random variable, then <script type="math/tex">p_1</script> could be Bernouilli with mean given by <script type="math/tex">f_i</script>.</li>
+  <li>If <script type="math/tex">x_i</script> is categorical, then <script type="math/tex">p_1</script> could be softmax with logits given by <script type="math/tex">f_i</script>.</li>
+</ol>
+
+<table>
+  <tbody>
+    <tr>
+      <td>Thus, the total number of parameters is $$\sum_{i=1}^n</td>
+      <td>\theta_i</td>
+      <td>$$.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="fully-visible-sigmoid-belief-network-fvsbn">Fully-visible sigmoid belief network (FVSBN)</h2>
+<p><img src="/images/Autoregressive/fsvbn.png" alt="" title="FSVBN" /></p>
+
+<p>Suppose that <script type="math/tex">x_i \in \{0,1\}</script> for <script type="math/tex">1 \leq i \leq n</script>. Then, we have that <script type="math/tex">p_1</script> is a Bernouilli distribution, and so <script type="math/tex">f_i</script> as the parameter of a Bernouilli must have domain <script type="math/tex">[0,1]</script>. Thus, in the simplest case, we can just let it be the sigmoid of the linear combination of all previous random variables:</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>$$ p(x_i</td>
+      <td>\mathbf{x}<em>{&lt;i}) = f_i(x_1,\dots,x</em>{i-1}) = \sigma\left( \alpha_0^{(i)} + \sum_{j=1}^{i-1} \alpha_j^{(i)} x_{j}, \right) $$</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>so here the set of parameter is <script type="math/tex">\theta_i = \{ \alpha^{(i)}_j : 0 \leq j \leq i-1 \}</script>. As such, the total number of parameters is $$\sum_{i=1}^n</td>
+      <td>\theta_i</td>
+      <td>= \sum_{i=1}^n i = O(n^2)$$. We have now reduced the number of parameters from exponential to polynomial in input dimension.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="neural-autoregressive-density-estimation-nade">Neural autoregressive density estimation (NADE)</h2>
+<p>Clearly, a natural way to make the FVSBN model more complex is to use a more complex architecture to specify the function <script type="math/tex">f_i</script>. For example, we can use a one layer neural network instead of the logistic model to specify <script type="math/tex">f_i</script>:</p>
+
+<p><img src="/images/Autoregressive/mlp.png" alt="" title="MLP" /></p>
+
+<p>Since the model is more expressive, there are also more parameters. The total number is <script type="math/tex">\sum_{i=1}^n (d(i+1) + 1) = O(n^2d)</script>. This is still polynomial in the input dimension and linear in the depth of the hidden layer.</p>
+
+<p>In NADE, however, parameters are shared in the hidden layer. That is, instead of having a separate matrix <script type="math/tex">A_i</script>  and bias vector <script type="math/tex">c_i</script> to compute each <script type="math/tex">h_i</script>, we assume universal shared matrix <script type="math/tex">W \in \R^{d \times n}</script> and <script type="math/tex">c \in \R^d</script>. Then, in order to compute <script type="math/tex">h_i</script>, we specify <script type="math/tex">% <![CDATA[
+A_i = W_{:, <i} \in \R^{d \times (i-1)} %]]></script>, which is the matrix formed by the first <script type="math/tex">(i-1)</script> columns of <script type="math/tex">W</script>. The total number of parameters is now <script type="math/tex">(n+1)d + \sum_{i=1}^n (d+1) = O(nd)</script>, which is linear in the input dimension.</p>
+
+<p><img src="/images/Autoregressive/nade.png" alt="" title="Nade" /></p>
+
+<h2 id="more-general-input-types">More general input types</h2>
+<p>The FVSBN and NADE models can be easily extended to other input types such as categorical or continuous, i.e. for example when <script type="math/tex">p_1</script> as discussed above is given by softmax or normal distribution.</p>
+
+<p>For categorical inputs <script type="math/tex">x_i</script> with <script type="math/tex">k</script> values, we simply let <script type="math/tex">\alpha_i \in \R^{d \times k}</script>, <script type="math/tex">b_i \in \R^k</script>, and <script type="math/tex">\sigma</script> is now the softmax function, where</p>
+
+<script type="math/tex; mode=display">\sigma(\mathbf{z}) = \sigma((z_1,\dots,z_k)) = \left( \frac{\exp(a_1)}{\sum_i \exp(a_i)}, \dots, \frac{\exp(a_k)}{\sum_i \exp(a_i)} \right).</script>
+
+<table>
+  <tbody>
+    <tr>
+      <td>For continuous inputs <script type="math/tex">x_i</script> and <script type="math/tex">p_1</script> given by a normal distribution, we can have <script type="math/tex">\sigma</script> outputs a two dimensional vector <script type="math/tex">(\mu_i, \sigma_i)</script>, so that $$p(x_i</td>
+      <td>\mathbf{x}_{&lt;i}) \sim N(\mu_i, \sigma_i^2)<script type="math/tex">. This can also be generalized to a uniform mixture of</script>K$$ Gaussians, which gives us the RNADE model.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h1 id="autoencoders-and-made-for-fast-training">Autoencoders and MADE for Fast Training</h1>
+
+<h2 id="comparison-autoregressive-models-vs-autoencoders">Comparison: Autoregressive models v.s. autoencoders</h2>
+<p>The autoregressive FVSBN and NADE models seem very similar to an autoencoder. For example, for the NADE, we can think of <script type="math/tex">h = (h_1,\dots, h_n) = e(\mathbf{x})</script> as the encoded version of <script type="math/tex">\mathbf{x}</script>. In the decoding phase, we get <script type="math/tex">\hat x_i = \sigma(\alpha_i^T h_i + b_i) = d(h)_i = d(e(\mathbf{x}))_i</script> as the decoded version. For an autoencoder, we aim to have <script type="math/tex">d(e(\mathbf{x})) \approx \mathbf{x}</script>, and so for binary <script type="math/tex">x_i</script>’s, the logistic loss is a suitable minimization objective 
+<script type="math/tex">\sum_{\mathbf{x} \in D} \sum_i - x_i \log \hat x_i - (1-x_i) \log(1-\hat x_i).</script></p>
+
+<p>On the other hand, our objective for generative models like NADE as mentioned in the first section is to find optimal parameter <script type="math/tex">\theta^*</script> that minimizes <script type="math/tex">d(p_\theta, p_{data}),</script> where <script type="math/tex">d</script> is some notion of distance between probability distributions. In the case where <script type="math/tex">d</script> is the KL divergence</p>
+
+<script type="math/tex; mode=display">d(p_\theta, p_{data}) = \mathbb E_{\mathbf{x} \sim p_{data}} [\log p_{data}(x) - \log p_\theta(x)],</script>
+
+<p>minimizing the distance is equivalent to maximizing the log-likelihood</p>
+
+<p><script type="math/tex">\mathbb E_{\mathbf{x} \sim p_{data}} [\log p_\theta(\mathbf{x})].</script>
+Notice now that since</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+p_\theta(\mathbf{x}) = \prod_{i=1}^n p(x_i|\mathbf x_{<i}) = \prod_{i=1}^n \mathrm{Bern}(\hat x_i), %]]></script>
+
+<p>we get that 
+<script type="math/tex">\log p_\theta(\mathbf x) = \sum_i x_i \log \hat x_i + (1-x_i) \log (1- \hat x_i).</script></p>
+
+<p>So, the objective of the generative model to minimize the KL divergence is also maximizing the log-likelihood, which is equivalent to minimize the logistic loss. That is, it looks exactly like the objective of the autoencoder.</p>
+
+<p>However, one distinction between an autoregressive model like NADE and an autoencoder is the probabilistic semantics: in autoregressive models, we have an ordering on the random variables <script type="math/tex">x_i</script>, and the conditional probability of <script type="math/tex">\hat x_i</script> can only depend on <script type="math/tex">% <![CDATA[
+\mathbf{x}_{<i} %]]></script>. On the other hand, there is no such constraint on a vanilla autoencoder.</p>
+
+<h2 id="made-for-fast-training">MADE for fast training</h2>
+
+<table>
+  <tbody>
+    <tr>
+      <td>Notice that due to the autoregressive behavior, in order to compute the probability density at an input point <script type="math/tex">\mathbf{x} \in \R^n</script>, due to the different network used to compute $$p(x_i</td>
+      <td>\mathbf{x}<em>{&lt;i})<script type="math/tex">, we need __</script>n<script type="math/tex">passes__ in order to compute</script>\hat{\mathbf x} = p(\mathbf{x}) = \prod</em>{i=1}^n p(x_i</td>
+      <td>\mathbf{x}_{&lt;i})<script type="math/tex">. On the other hand, in an autoencoder, we only need a __single__ forward pass in order to compute</script>\hat{\mathbf x}$$. The question is how one can make an autoencoder into an autoregressive model, where the probabilistic structure is respected. This is where the Masked Autoencoder for Distribution Estimation (MADE) comes in.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The idea is to prohibit paths that in an autoencoder that does not respect the conditional probability structure. For simplicity, suppose <script type="math/tex">n=3</script> and our ordering is again <script type="math/tex">x_1, x_2, x_3</script>. Clearly, the conditional probability structure mandates that <script type="math/tex">p(x_1)</script> does not depend on the any other inputs while <script type="math/tex">p(x_2)</script> can only be dependent on <script type="math/tex">x_1</script>, and <script type="math/tex">p(x_3)</script> can only depend on <script type="math/tex">x_1</script> and <script type="math/tex">x_2</script>. This means that paths from <script type="math/tex">x_1</script> can reach <script type="math/tex">\hat x_2</script> or <script type="math/tex">\hat x_3</script> but not <script type="math/tex">\hat x_1</script>; paths from <script type="math/tex">x_2</script> can reach <script type="math/tex">\hat x_3</script> but not <script type="math/tex">\hat x_1</script> or <script type="math/tex">\hat x_2</script>, and there is no path from <script type="math/tex">x_3</script> that is allowed to reach the output layer.</p>
+
+<p>In order to enforce these rules, we first label the input and output neurons with the given ordering. Then, for each unit in the hidden layer, we label it by a random integer <script type="math/tex">i \in \{1,\dots, n-1\}</script>. Any unit with label <script type="math/tex">i</script> in the hidden layers can only connect to neurons in previous layers that are labeled <script type="math/tex">\{1,\dots, i\}</script>. Finally, any unit in the output layer with label <script type="math/tex">i</script> can only connect to neurons in the previous layer that are labeled <script type="math/tex">\{1,\dots, i-1\}</script>. These rules immediately enforce that <script type="math/tex">\hat x_i</script> can only depend on <script type="math/tex">% <![CDATA[
+\mathbf{x}_{<i} %]]></script>. In terms of implementation, we can use masking matrices to do this.</p>
+
+<h1 id="final-thoughts-on-autoregressive-models">Final Thoughts on Autoregressive Models</h1>
+<ol>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>We have analytical form of $$p(\mathbf x) = \prod_{i=1}^n p(x_i</td>
+          <td>\mathbf{x}_{&lt;i})$$. This means that the log-likelihood can be evaluated easily, especially via using MADE for parallel computing. Thus, training can be done efficiently.</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>Sequential sampling can be done easily, <strong>BUT</strong> is not efficient because it is sequential.</li>
+  <li>These models require an ordering, and different orderings can lead to different result (because we assume a compact representation for parameterization).</li>
+  <li>There is no natural way to get features via unsupervised learning.</li>
+</ol>
+
+  </div>
+
+  <div class="date">
+    Written on 
+  </div>
+
+  
+</article>
+
+    </div>
+
+    <div class="wrapper-footer">
+      <div class="container">
+        <footer class="footer">
+          
+
+
+
+<a href="https://github.com/ntruongv/"><i class="svg-icon github"></i></a>
+
+
+
+
+
+
+
+
+          <!-- start custom footer snippets -->
+
+    
+<!-- end custom footer snippets -->
+        </footer>
+      </div>
+    </div>
+
+    
+	<!-- Google Analytics -->
+	<script>
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+		ga('create', 'UA-148877139-1', 'auto');
+		ga('send', 'pageview', {
+		  'page': '/archive/2019-11-02-Autoregressive/',
+		  'title': 'Deep Generative Model Note'
+		});
+	</script>
+	<!-- End Google Analytics -->
+
+
+  </body>
+</html>

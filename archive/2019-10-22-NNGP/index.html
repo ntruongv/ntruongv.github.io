@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- start custom head snippets -->
+<!-- add katex -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+    <title>A Bayesian View of Neural Networks – N Truong – Dabbling into the tech world</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="Dabbling into the tech world">
+    <meta property="og:description" content="Dabbling into the tech world" />
+    
+    <meta name="author" content="N Truong" />
+
+    
+    <meta property="og:title" content="A Bayesian View of Neural Networks" />
+    <meta property="twitter:title" content="A Bayesian View of Neural Networks" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="N Truong - Dabbling into the tech world" href="/feed.xml" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+    <script type="text/javascript">
+    window.MathJax = {
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        processEscapes: true
+      }
+    };
+</script>
+<script type="text/javascript" src="https://cdn.rawgit.com/mathjax/MathJax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  </head>
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <a href="/" class="site-avatar"><img src="http://sachachua.com/blog/wp-content/uploads/2013/08/shutterstock_57890992.jpg" /></a>
+
+          <div class="site-info">
+            <h1 class="site-name"><a href="/">N Truong</a></h1>
+            <p class="site-description">Dabbling into the tech world</p>
+          </div>
+
+          <nav>
+            <a href="/">Blog</a>
+            <a href="/about">About</a>
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container">
+      <article class="post">
+  <h1>A Bayesian View of Neural Networks</h1>
+  
+  <h2>Part I - Bayesian Learning of Weights </h4>
+
+  <div class="entry">
+    <p>There have been numerous recent papers by J.Lee et. al. (Google Brain), Matthews et. al. (Cambridge), etc. studying the behavior of wide deep neural networks in the infinite width limit. In that regime, these neural networks can be thought of as Gaussian processes, which allows for a Bayesian treatment. In this first post, I will provide a gentle introduction in this subject.</p>
+
+<h1 id="bayes-rule">Bayes’ rule</h1>
+<p>We start with the well-loved Bayes rule:
+\[ P(H|E) = \frac{P(E|H)P(H)}{P(E)}.\]
+To understand this rule:</p>
+<ol>
+  <li>\(H\) stands for hypothesis and \(E\) for evidence.</li>
+  <li>\( P(H \mid E) \) is the <em>posterior probability</em>, which is the probability of \(H\) given that we have observed \(E\)</li>
+  <li>As opposed to that, the prior \(P(H)\) is the <em>prior</em>, i.e. the probability of \(H\) when we have no information on \(E\).</li>
+  <li>\( P(E \mid H) \) is the likelihood of observing \(E\) when we are under hypothesis \(H\), and</li>
+  <li>\(P(E)\) is the marginal probability of evidence \(E\) happens regardless of hypothesis.
+What Bayes rule gives us is a way to update our belief on the probability distribution of the hypotheses as we gather more evidence/information.</li>
+</ol>
+
+<h1 id="bayesian-learning-of-weights">Bayesian learning of weights</h1>
+<p>In the context of machine learning, we can think of the hypotheses as the weights \(\bold w\) in the neural network, and the evidence as the training data \(\bold D\). In the step of initialization, we often let the weights \(\bold w\) to be randomly generated, usually from a Gaussian with sufficiently large variance. In the Bayesian treatment, we can think of this as our prior belief on the weights: \( \bold w \sim \mathcal N(0, \bold \Sigma) \). Then, using Bayes rule, for a model of neural network, we can obtain the posterior probability of the weights given that we have seen training data, i.e. we updated our belief as a consequence of having observed the data.</p>
+
+<h2 id="example-single-layer-network-for-binary-classification">Example: Single Layer Network for Binary Classification</h2>
+<p>In this example, we have inputs \( \bold x \in \mathbb R^d \) and outputs \( y \in [0,1] \), where \(y\) is interpreted as the probability that \(\bold x \) belongs to class 1. The simple architecture is as follows:
+<img src="/images/NNGP/1LGP.jpg" alt="" class="center-image" /></p>
+
+<p>As such, we have
+\[ f(\bold x, \bold w) = \sigma(\bold w^T \bold x) = \frac{1}{1 + \exp(-\bold w^T \bold x)}. \]
+Thus, given the current weight, the predictive distribution for the output of the neural network is
+First, we compute the likelihood of the data \( \bold D = {(\bold x^{(i)}, y^{(i)}): 1 \leq i \leq n} \):
+\[ p(D \mid \bold w) =  \prod_{i=1}^n p( y^{(i)} \mid x^{(i)}, w )  = \prod_{i=1}^n \sigma(\bold w^T \bold x^{(i)})^{y^{(i)}} (1- \sigma(\bold w^T \bold x^{(i)}))^{1-y^{(i)}}. \]</p>
+
+<p>Now, we can use Bayes rule to compute the posterior 
+\[ p(\bold w \mid D) = \frac{p(D\mid \bold w)p(\bold w)}{p(\bold D)} = \frac{\prod_{i=1}^n \sigma(\bold w^T \bold x^{(i)})^{y^{(i)}} (1- \sigma(\bold w^T \bold x^{(i)}))^{1-y^{(i)}} \exp(-| \bold w |^2/2) }{ \int_{\R^d}  \prod_{i=1}^n \sigma(\bold w’^T \bold x^{(i)})^{y^{(i)}} (1- \sigma(\bold w’^T \bold x^{(i)}))^{1-y^{(i)}} \exp(-| \bold w’ |^2/2) d\bold w’.} \]
+Note that the denominator is simply a normalization constant to make the posterior a probability distribution.</p>
+
+<p>This looks complicated, but let’s see a little example, where \(x \in \R^2 \) and \(y = 0 \) if \(0.5 x_1 + 0.5 x_2 &gt; 0 \), and \(1\) otherwise.</p>
+
+<p>Here is the plot of the Gaussian prior over \(\bold w \sim \mathcal N(0, I_2) \):
+<img src="/images/NNGP/GPrior.png" alt="" class="center-image" /></p>
+
+<p>We used the following set of 4 data points:
+<img src="/images/NNGP/SampledData.png" alt="" class="center-image" /></p>
+
+<p>After numerically computing the posterior, we get the following distribution:
+<img src="/images/NNGP/Posterior.png" alt="" class="center-image" /></p>
+
+<p>Note that the posterior distribution is more concentrated around the true value \((0.5,0.5)\).</p>
+
+<h1 id="comparison-with-mle">Comparison with MLE</h1>
+<p>In the usual approach, we use gradient descent to find</p>
+
+<script type="math/tex; mode=display">\mathbf{w^*_{MLE}}= \arg\max_{\mathbf{w}} P(D \mid \mathbf{w}),</script>
+
+<p>which amounts to find a single parameter that best fits our data given the current model. On the other hand, the Bayesian approach tries to understand the distribution of parameters given the model and the training data. As a result, we can also understand the predictive distribution of the model:
+\[ p(f(\bold x) \mid D, \bold w)  = \int f(\bold x, \bold w) P(\bold w \mid D) d\bold w \]
+This means that we can also compute the confidence in the model output.</p>
+
+<p>Another estimator that arises naturally from the Bayesian approach is the maximum a posteriori (MAP) estimator:
+<script type="math/tex">\mathbf{w^*_{MAP}} = \arg\max_{\mathbf{w}} P(D \mid \mathbf{w} ) P(\mathbf{w}),</script> 
+which is the mode of the posterior distribution. In the case where we have a compact parameter space and a uniform prior distribution, it is clear that <script type="math/tex">\mathbf{w^*_{MAP}} = \mathbf{w^*_{MLE}}</script>. Thus, one can view the MLE as a special case of the MAP estimator. Notice that when we use a Gaussian prior with mean \(0\), the MAP estimator has smaller norm than the MLE. This is because large norm is punished by \(P(\bold w) \propto \exp\left( -\frac{1}{2} \bold w^T \Sigma^{-1} \bold w \right).\) In the case where the data is also normally distributed with respect to the weights \(\bold w\), using the MAP estimator amounts to a well-known form of regularization called ridge-regression.</p>
+
+<p>In this part, we have explored a very simple Bayesian treatment of neural networks, where we think of the random weight initialization as giving a prior on the weights. In the next part, I will explain how infinite-width neural networks will correspond to Gaussian process priors over functions.</p>
+
+  </div>
+
+  <div class="date">
+    Written on 
+  </div>
+
+  
+</article>
+
+    </div>
+
+    <div class="wrapper-footer">
+      <div class="container">
+        <footer class="footer">
+          
+
+
+
+<a href="https://github.com/ntruongv/"><i class="svg-icon github"></i></a>
+
+
+
+
+
+
+
+
+          <!-- start custom footer snippets -->
+
+    
+<!-- end custom footer snippets -->
+        </footer>
+      </div>
+    </div>
+
+    
+	<!-- Google Analytics -->
+	<script>
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+		ga('create', 'UA-148877139-1', 'auto');
+		ga('send', 'pageview', {
+		  'page': '/archive/2019-10-22-NNGP/',
+		  'title': 'A Bayesian View of Neural Networks'
+		});
+	</script>
+	<!-- End Google Analytics -->
+
+
+  </body>
+</html>

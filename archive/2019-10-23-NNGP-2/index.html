@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- start custom head snippets -->
+<!-- add katex -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+    <title>A Bayesian View of Neural Networks – N Truong – Dabbling into the tech world</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="Dabbling into the tech world">
+    <meta property="og:description" content="Dabbling into the tech world" />
+    
+    <meta name="author" content="N Truong" />
+
+    
+    <meta property="og:title" content="A Bayesian View of Neural Networks" />
+    <meta property="twitter:title" content="A Bayesian View of Neural Networks" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="N Truong - Dabbling into the tech world" href="/feed.xml" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+    <script type="text/javascript">
+    window.MathJax = {
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        processEscapes: true
+      }
+    };
+</script>
+<script type="text/javascript" src="https://cdn.rawgit.com/mathjax/MathJax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  </head>
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <a href="/" class="site-avatar"><img src="http://sachachua.com/blog/wp-content/uploads/2013/08/shutterstock_57890992.jpg" /></a>
+
+          <div class="site-info">
+            <h1 class="site-name"><a href="/">N Truong</a></h1>
+            <p class="site-description">Dabbling into the tech world</p>
+          </div>
+
+          <nav>
+            <a href="/">Blog</a>
+            <a href="/about">About</a>
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container">
+      <article class="post">
+  <h1>A Bayesian View of Neural Networks</h1>
+  
+  <h2>Part II - Bayesian Learning of Functions </h4>
+
+  <div class="entry">
+    <p>In the last part, we went over an introduction to the Bayesian approach in machine learning, where we think of a neural network model from a weight-space point of view. In this post, I will go over an alternative approach, whereby we apply Bayesian inference directly in the function space. That is, instead of thinking of the model as specifying the probability distribution over the weights in a neural network, we are thinking of it as specifying a probability distribution over functions whose domain is the space of inputs of the network, and the codomain as the space of its outputs.</p>
+
+<h1 id="stochastic-processes">Stochastic processes</h1>
+<p>A <strong>stochastic process</strong> is a collection of random variables <script type="math/tex">\{X_t\}_{t \in T}</script> that are indexed by some set $T$. A stochastic process is a <strong>Gaussian process</strong> if for every finite collection of indices $(t_1,\dots,t_n)$, we have that $(X_{t_1},\dots, X_{t_n})$ is a multivariate Gaussian random variable.</p>
+
+<p>Just like Gaussian random variables, a Gaussian process can be completely characterized by its mean and covariance functions:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align} m(t) &= \mathbb E[X_t] \\ k(t,t') &= \mathbb E[(X_t - m(t))(X_{t'} - m(t'))^T] \end{align} %]]></script>
+
+<p>Usually, the index set is denoted as $T$ for its interpretation as time. For example, the well-known Ornstein-Uhlenbeck process is a Gaussian process, and Brownian motion is a stochastic process that is the integral of a white noise generalized Gaussian process. These are beyond the scope of this blog post, but it could be of interest to some readers.</p>
+
+<h1 id="example-gaussian-process-prior-over-functions">Example: Gaussian process prior over functions</h1>
+<p>The index set does not need to be time or even one-dimensional, as we shall see in the case of neural network. As an example, consider the following simple kernel-based regression architecture:</p>
+
+<p><img src="/images/NNGP2/kernelNN.jpg" alt="" class="center-image" /></p>
+
+<p>In particular, our architecture specifies for inputs $x \in \mathbb R^d$, the output is $f(\mathbf x) = \mathbf w^T \phi(\mathbf x)$, where $\mathbf{w} \sim \mathcal N(0, \Sigma_n)$. Here, we can view <script type="math/tex">\{f(\mathbf x)\}_{\mathbf{x} \in \mathbb R^d}</script> as a Gaussian process, where the index set is $\mathbb R^d$ (when the index set is multidimensional, i.e. when $d&gt;1$, this is also commonly known as a Gaussian random field). This process has the following mean and covariance functions:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align} m(\mathbf{x}) &= \mathbb E[\mathbf{w}^T \phi(\mathbf{x})] = \mathbb E[\mathbf{w}^T] \phi(\mathbf{x}) = 0 \\ k(\mathbf{x}, \mathbf{x'}) &= \mathbb E[\phi(\mathbf{x})^T \mathbf{w w}^T \phi(\mathbf x)] = \phi(\mathbf{x})^T \Sigma_n \phi(\mathbf{x'})  \end{align} %]]></script>
+
+<p>Thus, from this point of view, we have that the architecture specifies a Gaussian process prior over our function space:</p>
+
+<script type="math/tex; mode=display">f(\cdot) \sim \mathcal{GP}(0, k(\cdot, \cdot))</script>
+
+<h1 id="bayesian-inference-with-gaussian-processes">Bayesian inference with Gaussian processes</h1>
+<p>Just as before, we are interested in updating our belief once we have gathered more observations. That is, we want to compute the <strong>posterior</strong> distribution over functions given the training data <script type="math/tex">\{(\mathbf{x}_i, f_i): 1 \leq i \leq n \}</script>. For now, assume that our observations are noise-free. Suppose further that we want to obtain outputs for $m$ test points <script type="math/tex">\{(x_i^*, f^*): 1 \leq i \leq m\}</script>.</p>
+
+<p>Let <script type="math/tex">X = (x_1,\dots,x_n)</script>, <script type="math/tex">X^* = (x_1^*,\dots, x_m^*)</script>, <script type="math/tex">\mathbf{f} = (f_1,\dots, f_n)</script>, and <script type="math/tex">\mathbf{f^*} = (f_1^*,\dots, f_m^*)</script>. Because <script type="math/tex">f(\cdot) \sim \mathcal{GP}(0, k(\cdot, \cdot))</script>, we have that the joint distribution of these data points are</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\left[\begin{matrix} \mathbf{f} \\ \mathbf{f^*} \end{matrix}\right]\sim \mathcal{N} \left(0, \left[ \begin{matrix} K(X,X) & K(X,X^*) \\ K(X^*, X) & K(X^*,X^*) \end{matrix}\right] \right), %]]></script>
+
+<table>
+  <tbody>
+    <tr>
+      <td>where <script type="math/tex">K(A,B)= [k(a,b)]_{a \in A, b \in B}</script> is an $$ \left</td>
+      <td>A \right</td>
+      <td>\times \left</td>
+      <td>B \right</td>
+      <td>$$ matrix.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>To compute the posterior, we thus simply use the rule for conditioning Gaussian to obtain</p>
+
+<script type="math/tex; mode=display">\mathbf{f^*} \mid X^*, X, \mathbf{f} \sim \mathcal N(\mu^*,k^*),</script>
+
+<p>where</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{align} \mu^* &= K(X^*,X) K(X,X)^{-1} \mathbf{f} \\ k^* &= K(X^*,X^*) - K(X^*,X)K(X,X)^{-1} K(X,X^*) \end{align}. %]]></script>
+
+<p>In other words, our posterior is again a Gaussian process, with mean and covariance function given by specifying the set <script type="math/tex">X^*</script> in the above formulas for <script type="math/tex">\mu^*</script> and <script type="math/tex">k^*</script>.</p>
+
+<h1 id="simulated-example">Simulated example</h1>
+<p>Note that for the above example of the simple kernel-based neural network, for a set <script type="math/tex">X = \{\mathbf{x_1},\dots,\mathbf{x_n}\}</script> of $n$ different inputs, if $n&gt;d$, where $d$ is the dimension of the input, then although $f(\mathbf{x_1}),\dots, f(\mathbf{x_n})$ is still distributed as a multivariate Gaussian, its covariance matrix is singular, and conditioning on knowing any $f(\mathbf{x_{i_1}}), \dots, f(\mathbf{x_{i_d}})$, we know what $f(\cdot)$ is. This means that one-dimensional problems are boring because knowing value of 1 non-degenerate point results in knowing the function. (only true in the case where our observations are not noisy).</p>
+
+<p>As such, let us look at a more interesting example (not arising from kernel-based neural network), where the covariance function is given by:</p>
+
+<script type="math/tex; mode=display">k(\mathbf{x}, \mathbf{x'}) = \exp\left( - \frac{1}{2}\|\mathbf{x}-\mathbf{x'} \|^2 \right).</script>
+
+<p>Here is a plot showing a simulation when  $\mathbf{x} \in \mathbb R$ and the Gaussian process is defined with the above exponential decay kernel. On the left, we have sample of functions drawn from the GP prior, while on the right, we have the posterior given the five data points (blue dots). The shaded area corresponds to 2 standard deviations away from the mean of the distribution.</p>
+
+<p><img src="/images/NNGP2/posteriorGP.png" alt="" /></p>
+
+<p>As opposed to the prior where the standard deviation is the same across all input points, after observing the training data, we updated our belief to have much more confidence in the area of inputs between any two observed data points. In this particular case, because the observation is noise-free, there is no uncertainty regarding the outputs at the input points where we have training data. Furthermore, as we use the exponential prior $k(\mathbf{x}, \mathbf{x’}) = \exp\left( - \frac{1}{2}|\mathbf{x}-\mathbf{x’} |^2 \right).$, points that are closed together have high covariance, and so the functions drawn are smooth. As a result for the posterior, we can see that between any two given data points with high slope change (for e.g. the second and third one), we have more confidence in the prediction as the variance is smaller, as is evidenced from the smaller width of the shaded area.</p>
+
+<h1 id="general-neural-network">General neural network</h1>
+<p>In general, a neural network may not be a Gaussian process, even for a single layer one with weights distributed as independent Gaussian variables:</p>
+
+<p><img src="/images/NNGP2/1LNN.png" alt="" /></p>
+
+<p>Although $W^0x +b^0$ is normal as the sum of Gaussian random variables, the nonlinearity of the activation function $\phi$ means that $x^1(x)$ is not normal, and so we do not necessarily have a Gaussian process prior. In the next post, I will describe the results by Neal (1994) and J. Lee et al. (2018), which shows that in the infinite width limit, neural networks of any fixed depth are Gaussian processes!</p>
+
+
+  </div>
+
+  <div class="date">
+    Written on 
+  </div>
+
+  
+</article>
+
+    </div>
+
+    <div class="wrapper-footer">
+      <div class="container">
+        <footer class="footer">
+          
+
+
+
+<a href="https://github.com/ntruongv/"><i class="svg-icon github"></i></a>
+
+
+
+
+
+
+
+
+          <!-- start custom footer snippets -->
+
+    
+<!-- end custom footer snippets -->
+        </footer>
+      </div>
+    </div>
+
+    
+	<!-- Google Analytics -->
+	<script>
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+		ga('create', 'UA-148877139-1', 'auto');
+		ga('send', 'pageview', {
+		  'page': '/archive/2019-10-23-NNGP-2/',
+		  'title': 'A Bayesian View of Neural Networks'
+		});
+	</script>
+	<!-- End Google Analytics -->
+
+
+  </body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- start custom head snippets -->
+<!-- add katex -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+    <title>EPI Chapter 9 Binary Search Tree – N Truong – Dabbling into the tech world</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="Dabbling into the tech world">
+    <meta property="og:description" content="Dabbling into the tech world" />
+    
+    <meta name="author" content="N Truong" />
+
+    
+    <meta property="og:title" content="EPI Chapter 9 Binary Search Tree" />
+    <meta property="twitter:title" content="EPI Chapter 9 Binary Search Tree" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="N Truong - Dabbling into the tech world" href="/feed.xml" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+    <script type="text/javascript">
+    window.MathJax = {
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        processEscapes: true
+      }
+    };
+</script>
+<script type="text/javascript" src="https://cdn.rawgit.com/mathjax/MathJax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  </head>
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <a href="/" class="site-avatar"><img src="http://sachachua.com/blog/wp-content/uploads/2013/08/shutterstock_57890992.jpg" /></a>
+
+          <div class="site-info">
+            <h1 class="site-name"><a href="/">N Truong</a></h1>
+            <p class="site-description">Dabbling into the tech world</p>
+          </div>
+
+          <nav>
+            <a href="/">Blog</a>
+            <a href="/about">About</a>
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container">
+      <article class="post">
+  <h1>EPI Chapter 9 Binary Search Tree</h1>
+  
+  <h2> </h4>
+
+  <div class="entry">
+    <h1 id="inorder-traversal-recursive-and-iterative">Inorder Traversal (Recursive and Iterative)</h1>
+<p>For a binary search tree, the inorder traversal always processes the left subtree, then the root node, and finally the right subtree.</p>
+
+<h2 id="recursive-solution">Recursive Solution</h2>
+<p>This is built for recursion. In fact, when we have a tree as the data structure, recursive algorithms are often suitable. The recursion for inorder traversal of a binary search tree has \(O(n)\) time complexity because we will walk through all \(n\) nodes, while the space complexity is on the function call stack, which takes space equal to the depth of the tree, i.e. somewhere between \(\log n \) and \(n \).</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">inorderTraversal</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="n">TreeNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">root</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="o">+</span> <span class="n">inorderTraversal</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">left</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">val</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="o">+</span> <span class="n">inorderTraversal</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+</code></pre></div></div>
+
+<h2 id="iterative-solution">Iterative Solution</h2>
+<p>We can use a stack to record the parents’ node as we walk through the tree to the left most leaf, and then pop the parent node one by one as we proceed back up.</p>
+
+<p>When we code this up, the idea is to have a while loop in which we dynamically adjust the root node to be considered. Whenever we are at a root, we move all the way down to the left, adding each node on the way to the parents stack. When we have finished a left subtree, then we pop the most recent parent because that is the root. Then, we move to the right, and repeat. As long as the dynamically adjusted root still has subtrees left, or the parents stack is still available, we have things that we have not processed. Once we have gone through everything, the last node popped from parents will be None, i.e. root = None and we are finished.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">inorderTraversal</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="n">TreeNode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">parents</span> <span class="o">=</span> <span class="p">[]</span> 
+    <span class="k">while</span> <span class="p">(</span><span class="n">root</span> <span class="ow">or</span> <span class="n">parents</span><span class="p">):</span>
+        <span class="k">while</span> <span class="n">root</span><span class="p">:</span>
+            <span class="n">parents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+            <span class="n">root</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">left</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">parents</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">val</span><span class="p">)</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">right</span>
+    <span class="k">return</span> <span class="n">result</span>
+</code></pre></div></div>
+
+
+  </div>
+
+  <div class="date">
+    Written on 
+  </div>
+
+  
+</article>
+
+    </div>
+
+    <div class="wrapper-footer">
+      <div class="container">
+        <footer class="footer">
+          
+
+
+
+<a href="https://github.com/ntruongv/"><i class="svg-icon github"></i></a>
+
+
+
+
+
+
+
+
+          <!-- start custom footer snippets -->
+
+    
+<!-- end custom footer snippets -->
+        </footer>
+      </div>
+    </div>
+
+    
+	<!-- Google Analytics -->
+	<script>
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+		ga('create', 'UA-148877139-1', 'auto');
+		ga('send', 'pageview', {
+		  'page': '/archive/2019-10-01-BST/',
+		  'title': 'EPI Chapter 9 Binary Search Tree'
+		});
+	</script>
+	<!-- End Google Analytics -->
+
+
+  </body>
+</html>

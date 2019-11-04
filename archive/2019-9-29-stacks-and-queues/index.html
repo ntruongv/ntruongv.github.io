@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- start custom head snippets -->
+<!-- add katex -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+    <title>EPI Chapter 8 - Stacks and Queues – N Truong – Dabbling into the tech world</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="Dabbling into the tech world">
+    <meta property="og:description" content="Dabbling into the tech world" />
+    
+    <meta name="author" content="N Truong" />
+
+    
+    <meta property="og:title" content="EPI Chapter 8 - Stacks and Queues" />
+    <meta property="twitter:title" content="EPI Chapter 8 - Stacks and Queues" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="N Truong - Dabbling into the tech world" href="/feed.xml" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+    <script type="text/javascript">
+    window.MathJax = {
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+        processEscapes: true
+      }
+    };
+</script>
+<script type="text/javascript" src="https://cdn.rawgit.com/mathjax/MathJax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  </head>
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <a href="/" class="site-avatar"><img src="http://sachachua.com/blog/wp-content/uploads/2013/08/shutterstock_57890992.jpg" /></a>
+
+          <div class="site-info">
+            <h1 class="site-name"><a href="/">N Truong</a></h1>
+            <p class="site-description">Dabbling into the tech world</p>
+          </div>
+
+          <nav>
+            <a href="/">Blog</a>
+            <a href="/about">About</a>
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container">
+      <article class="post">
+  <h1>EPI Chapter 8 - Stacks and Queues</h1>
+  
+  <h2> </h4>
+
+  <div class="entry">
+    <h1 id="84-normalize-pathnames">8.4 Normalize pathnames</h1>
+<p>Given a path to a file or directory in Unix style, we are asked to convert it to the canonical path, i.e. the shortest path possible. For example, <em>/Documents/./..</em> is actually equivalent with the one-character path <em>/</em> because . corresponds to doing nothing while .. corresponds to going up one directory.</p>
+
+<p><strong>Solution:</strong> We have to recognize that a LIFO data structure will be useful here, because anytime we have /.. we want to go up one folder, i.e. pop the previous folder name. There are some edge cases to be aware of:</p>
+<ol>
+  <li>When the path starts with <em>/..</em> we cannot go up any further, so do nothing.</li>
+  <li>When we have ../.. i.e. going up twice, we cannot pop the previous ..</li>
+</ol>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">simplifyPath</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">path</span> 
+    <span class="n">path_names</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">'/'</span><span class="p">:</span>
+        <span class="n">path_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">'/'</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'/'</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'.'</span><span class="p">,</span><span class="s">''</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s">'..'</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">path_names</span> <span class="ow">or</span> <span class="n">path_names</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">'..'</span><span class="p">:</span>
+                        <span class="n">path_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">'..'</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">path_names</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">!=</span> <span class="s">'/'</span><span class="p">:</span>
+                        <span class="n">path_names</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">path_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="s">'/'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path_names</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">result</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span><span class="o">==</span><span class="s">'//'</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="k">return</span> <span class="n">result</span>
+</code></pre></div></div>
+
+<h1 id="88-implement-a-queue-using-stacks">8.8 Implement a queue using stacks</h1>
+<p>We are asked to implement a queue using available stack data structure. Note that we have to keep track of the first in element, so we cannot use just a single stack.</p>
+
+<p><strong>Solution:</strong> The strategy is to use two stacks, one to enqueue, and the other to dequeue. The idea is that whenever we want to pop the first one, we pop every element in the first stack to the second one, and so the first element in the second stack is now the first one that was appended to the first stack. We don’t have to do this every time we want to pop an element: as long as the second stack is nonempty, we know that the top one is the one to pop out.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">MyQueue</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">"""
+        Initialize your data structure here.
+        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stack_1</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stack_2</span> <span class="o">=</span> <span class="p">[]</span>
+        
+
+    <span class="k">def</span> <span class="nf">push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="s">"""
+        Push element x to the back of queue.
+        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stack_1</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">pop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="s">"""
+        Removes the element from in front of queue and returns that element.
+        """</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">stack_2</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">'true'</span><span class="p">)</span>
+            <span class="k">while</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stack_1</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stack_2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stack_1</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
+                <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stack_2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">stack_2</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        
+
+    <span class="k">def</span> <span class="nf">peek</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="s">"""
+        Get the front element.
+        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">stack_2</span><span class="p">:</span>
+            <span class="k">while</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stack_1</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stack_2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stack_1</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">stack_2</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        
+
+    <span class="k">def</span> <span class="nf">empty</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="s">"""
+        Returns whether the queue is empty.
+        """</span>
+        <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stack_1</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stack_2</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">True</span>
+</code></pre></div></div>
+
+  </div>
+
+  <div class="date">
+    Written on 
+  </div>
+
+  
+</article>
+
+    </div>
+
+    <div class="wrapper-footer">
+      <div class="container">
+        <footer class="footer">
+          
+
+
+
+<a href="https://github.com/ntruongv/"><i class="svg-icon github"></i></a>
+
+
+
+
+
+
+
+
+          <!-- start custom footer snippets -->
+
+    
+<!-- end custom footer snippets -->
+        </footer>
+      </div>
+    </div>
+
+    
+	<!-- Google Analytics -->
+	<script>
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+		ga('create', 'UA-148877139-1', 'auto');
+		ga('send', 'pageview', {
+		  'page': '/archive/2019-9-29-stacks-and-queues/',
+		  'title': 'EPI Chapter 8 - Stacks and Queues'
+		});
+	</script>
+	<!-- End Google Analytics -->
+
+
+  </body>
+</html>
