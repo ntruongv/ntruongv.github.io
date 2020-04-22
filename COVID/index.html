@@ -9,7 +9,7 @@
 
 <!-- end custom head snippets -->
 
-    <title>County MVT Data Visualization – N Truong – Dabbling into the tech world</title>
+    <title>Visualization of MVT Data – N Truong – Dabbling into the tech world</title>
 
         <meta charset="utf-8" />
     <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
@@ -17,16 +17,22 @@
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
 
     
-    <meta name="description" content="
+    <meta name="description" content="Non-interactive Graphs
+USA Daily VMT Reduction %
+
+
 " />
-    <meta property="og:description" content="
+    <meta property="og:description" content="Non-interactive Graphs
+USA Daily VMT Reduction %
+
+
 " />
     
     <meta name="author" content="N Truong" />
 
     
-    <meta property="og:title" content="County MVT Data Visualization" />
-    <meta property="twitter:title" content="County MVT Data Visualization" />
+    <meta property="og:title" content="Visualization of MVT Data" />
+    <meta property="twitter:title" content="Visualization of MVT Data" />
     
 
     <!--[if lt IE 9]>
@@ -73,12 +79,35 @@
 
     <div id="main" role="main" class="container">
       <article class="post">
-  <h1>County MVT Data Visualization</h1>
+  <h1>Visualization of MVT Data</h1>
   
   <h2> </h4>
 
   <div class="entry">
-    <iframe id="igraph" scrolling="no" style="border:none;" seamless="seamless" src="././html_embeds/daily_state_red_bar.html" height="525" width="100%"></iframe>
+    <h1 id="non-interactive-graphs">Non-interactive Graphs</h1>
+<h3 id="usa-daily-vmt-reduction-">USA Daily VMT Reduction %</h3>
+<p><img src="/images/us_daily.gif" alt="" title="USA" /></p>
+
+<h3 id="california-daily-vmt-reduction-">California Daily VMT Reduction %</h3>
+<p><img src="/images/ca_daily.gif" alt="" title="CA" /></p>
+
+<h1 id="interactive-graphs">Interactive Graphs</h1>
+
+<iframe id="igraph" scrolling="no" style="border:none;" seamless="seamless" src="/html_embeds/mean_usa_red.html" height="525" width="100%"></iframe>
+
+<p>For the following two graphs, click twice on the legend to toggle all on/off curves, and click once on each legend to show the particular state/county of interest.</p>
+<iframe id="igraph" scrolling="no" style="border:none;" seamless="seamless" src="/html_embeds/mean_state_red.html" height="525" width="100%"></iframe>
+
+<iframe id="igraph" scrolling="no" style="border:none;" seamless="seamless" src="/html_embeds/mean_cal_red.html" height="525" width="100%"></iframe>
+
+<p>For the following graph, you can click start/stop as well as move the day bar to see the changes.</p>
+
+<iframe id="igraph" scrolling="no" style="border:none;" seamless="seamless" src="/html_embeds/daily_state_red_bar.html" height="525" width="100%"></iframe>
+
+<iframe id="igraph" scrolling="no" style="border:none;" seamless="seamless" src="/html_embeds/mean_state_red_bar.html" height="525" width="100%"></iframe>
+
+<iframe id="igraph" scrolling="no" style="border:none;" seamless="seamless" src="/html_embeds/std_state_red_bar.html" height="525" width="100%"></iframe>
+
 
   </div>
 
@@ -126,7 +155,7 @@
 		ga('create', 'UA-148877139-1', 'auto');
 		ga('send', 'pageview', {
 		  'page': '/COVID/',
-		  'title': 'County MVT Data Visualization'
+		  'title': 'Visualization of MVT Data'
 		});
 	</script>
 	<!-- End Google Analytics -->
